@@ -2,8 +2,8 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/terminills/ACD_Specification/spec/ACD_SCHEMA_v1.0.json",
   "title": "Autonomous Continuous Development (ACD) Standard Schema",
-  "version": "1.0.0",
-  "description": "JSON schema for validating ACD metadata in source code and trace artifacts",
+  "version": "1.1.0",
+  "description": "JSON schema for validating ACD metadata in source code and trace artifacts. Version 1.1.0 adds agent collaboration, communication flags, and queuing flags for distributed agent coordination.",
   "definitions": {
     "scis_metadata": {
       "type": "object",
@@ -125,7 +125,102 @@
         },
         "AI_ASSIGNED_TO": {
           "type": "string",
-          "description": "Distributed agent coordination - agent ID or name assigned to this task"
+          "description": "Agent assignment - current agent assigned to this task"
+        },
+        "AI_ASSIGNED_BY": {
+          "type": "string",
+          "description": "Agent assignment - agent or system that made the assignment"
+        },
+        "AI_ASSIGNED_AT": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Agent assignment - ISO 8601 timestamp when task was assigned"
+        },
+        "AI_ASSIGNMENT_REASON": {
+          "type": "string",
+          "description": "Agent assignment - why this agent was chosen"
+        },
+        "AI_PREVIOUS_ASSIGNEE": {
+          "type": "string",
+          "description": "Agent assignment - previous agent (for handoff tracking)"
+        },
+        "AI_ASSIGNMENT_HISTORY": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Agent assignment - complete assignment chain in chronological order"
+        },
+        "AI_HANDOFF_REQUESTED": {
+          "type": "boolean",
+          "description": "Agent handoff - whether handoff is requested"
+        },
+        "AI_HANDOFF_REASON": {
+          "type": "string",
+          "description": "Agent handoff - reason for handoff request"
+        },
+        "AI_HANDOFF_TO": {
+          "type": "string",
+          "description": "Agent handoff - specific agent requested for handoff"
+        },
+        "AI_HANDOFF_TYPE": {
+          "type": "string",
+          "enum": [
+            "ESCALATION",
+            "SPECIALIZATION",
+            "LOAD_BALANCE",
+            "FAILURE",
+            "COMPLETION",
+            "COLLABORATION"
+          ],
+          "description": "Agent handoff - type of handoff"
+        },
+        "AI_HANDOFF_AT": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Agent handoff - ISO 8601 timestamp when handoff occurred"
+        },
+        "AI_HANDOFF_NOTES": {
+          "type": "string",
+          "description": "Agent handoff - context for next agent"
+        },
+        "AI_HANDOFF_STATUS": {
+          "type": "string",
+          "enum": [
+            "REQUESTED",
+            "ACCEPTED",
+            "REJECTED",
+            "COMPLETED"
+          ],
+          "description": "Agent handoff - handoff workflow state"
+        },
+        "AI_REQUIRED_CAPABILITIES": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Capability matching - required agent capabilities"
+        },
+        "AI_PREFERRED_AGENT_TYPE": {
+          "type": "string",
+          "description": "Capability matching - preferred agent specialization"
+        },
+        "AI_AGENT_POOL": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Capability matching - eligible agents for assignment"
+        },
+        "AI_SKILL_LEVEL_REQUIRED": {
+          "type": "string",
+          "enum": [
+            "NOVICE",
+            "INTERMEDIATE",
+            "EXPERT",
+            "SPECIALIST"
+          ],
+          "description": "Capability matching - minimum skill level needed"
         },
         "AI_TIMEOUT": {
           "type": "integer",
@@ -136,6 +231,163 @@
           "type": "integer",
           "minimum": 0,
           "description": "Distributed agent coordination - maximum retry attempts"
+        },
+        "AI_CONFIDENCE": {
+          "type": "string",
+          "enum": [
+            "CONFIDENT",
+            "UNCERTAIN",
+            "HYPOTHESIS",
+            "VALIDATED",
+            "EXPERIMENTAL"
+          ],
+          "description": "Communication flag - agent's confidence level in the output"
+        },
+        "AI_REQUEST": {
+          "type": "string",
+          "enum": [
+            "REQUEST_FEEDBACK",
+            "REQUEST_REVIEW",
+            "WAITING_FOR_INPUT",
+            "NEEDS_VALIDATION",
+            "NEEDS_APPROVAL",
+            "REQUEST_ASSISTANCE"
+          ],
+          "description": "Communication flag - signals need for feedback or action"
+        },
+        "AI_STATE": {
+          "type": "string",
+          "enum": [
+            "PROCESSING",
+            "READY",
+            "DONE",
+            "BLOCKED",
+            "PAUSED",
+            "FAILED",
+            "CANCELLED"
+          ],
+          "description": "Communication flag - current processing state"
+        },
+        "AI_QUEUE_PRIORITY": {
+          "type": "string",
+          "enum": [
+            "CRITICAL",
+            "HIGH",
+            "NORMAL",
+            "LOW",
+            "DEFERRED"
+          ],
+          "description": "Queuing flag - task priority level"
+        },
+        "AI_QUEUE_STATUS": {
+          "type": "string",
+          "enum": [
+            "QUEUED",
+            "ASSIGNED",
+            "IN_PROGRESS",
+            "REVIEW_PENDING",
+            "REVIEW_IN_PROGRESS",
+            "APPROVED",
+            "REJECTED",
+            "COMPLETED",
+            "ABANDONED"
+          ],
+          "description": "Queuing flag - task progress through processing queue"
+        },
+        "AI_QUEUE_REASON": {
+          "type": "string",
+          "description": "Queuing flag - reason for priority level or queue status"
+        },
+        "AI_STARTED": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Queuing flag - ISO 8601 timestamp when task processing started"
+        },
+        "AI_ESTIMATED_COMPLETION": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Queuing flag - ISO 8601 timestamp for estimated completion"
+        },
+        "AI_NOTE_CONFIDENCE": {
+          "type": "string",
+          "description": "Communication flag - additional notes about confidence level"
+        },
+        "AI_REQUEST_FROM": {
+          "type": "string",
+          "description": "Communication flag - specific agent or human requested for feedback"
+        },
+        "AI_NOTE_REQUEST": {
+          "type": "string",
+          "description": "Communication flag - details about the request"
+        },
+        "AI_VALIDATION": {
+          "type": "string",
+          "enum": [
+            "ANALYZED",
+            "APPROVED",
+            "REJECTED",
+            "PENDING"
+          ],
+          "description": "Dual-agent tag - validation status from reviewer agent"
+        },
+        "AI_ISSUES": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Dual-agent tag - issues identified by reviewer"
+        },
+        "AI_SUGGESTIONS": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Dual-agent tag - suggestions from reviewer"
+        },
+        "AI_REFINEMENT": {
+          "type": "string",
+          "enum": [
+            "APPLIED",
+            "IN_PROGRESS",
+            "PENDING",
+            "NOT_NEEDED"
+          ],
+          "description": "Dual-agent tag - refinement status"
+        },
+        "AI_CHANGES": {
+          "type": "string",
+          "description": "Dual-agent tag - changes made during refinement"
+        },
+        "AI_RATIONALE": {
+          "type": "string",
+          "description": "Dual-agent tag - reasoning for changes"
+        },
+        "AI_VALIDATION_RESULT": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "NEEDS_MORE_WORK",
+            "REJECTED"
+          ],
+          "description": "Dual-agent tag - final validation result"
+        },
+        "AI_APPROVAL": {
+          "type": "string",
+          "enum": [
+            "YES",
+            "NO",
+            "CONDITIONAL"
+          ],
+          "description": "Dual-agent tag - approval status"
+        },
+        "AI_EXCHANGE_ID": {
+          "type": "string",
+          "description": "Dual-agent tag - unique exchange session identifier"
+        },
+        "AI_ROUND": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Dual-agent tag - exchange iteration number"
         }
       },
       "required": [

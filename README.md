@@ -1,8 +1,8 @@
-# 🔬 Autonomous Continuous Development (ACD) Standard Specification (v1.0 - The Full Development Loop)
+# 🔬 Autonomous Continuous Development (ACD) Standard Specification (v1.1 - The Full Development Loop)
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Status:** Active Standard  
-**Last Updated:** October 2025  
+**Last Updated:** November 2025  
 **Repository:** ACD_Specification
 
 ---
@@ -813,9 +813,539 @@ FIX_REASON: <fix_explanation>
 HUMAN_OVERRIDE: <reviewer_name_and_date>
 
 // For distributed agent coordination
-AI_ASSIGNED_TO: <agent_id_or_name>
 AI_TIMEOUT: <timeout_seconds>
 AI_MAX_RETRIES: <retry_count>
+
+// For agent assignment and handoff
+AI_ASSIGNED_TO: <agent_id_or_name>
+AI_ASSIGNED_BY: <assigner_id>
+AI_ASSIGNED_AT: <iso8601_timestamp>
+AI_ASSIGNMENT_REASON: <reason_string>
+AI_PREVIOUS_ASSIGNEE: <previous_agent_id>
+AI_ASSIGNMENT_HISTORY: <array_of_agent_ids>
+AI_HANDOFF_REQUESTED: <true_or_false>
+AI_HANDOFF_REASON: <reason_string>
+AI_HANDOFF_TO: <target_agent_id>
+AI_HANDOFF_TYPE: <handoff_type_enum>
+AI_HANDOFF_AT: <iso8601_timestamp>
+AI_HANDOFF_NOTES: <context_string>
+AI_HANDOFF_STATUS: <handoff_status_enum>
+AI_REQUIRED_CAPABILITIES: <array_of_capabilities>
+AI_PREFERRED_AGENT_TYPE: <agent_type_string>
+AI_AGENT_POOL: <array_of_agent_ids>
+AI_SKILL_LEVEL_REQUIRED: <skill_level_enum>
+
+// For agent collaboration and communication
+AI_CONFIDENCE: <confidence_flag>
+AI_REQUEST: <request_flag>
+AI_STATE: <state_flag>
+AI_QUEUE_PRIORITY: <priority_level>
+AI_QUEUE_STATUS: <queue_status>
+```
+
+---
+
+## Part 4: Agent Collaboration and Communication Flags
+
+This section defines the communication protocol for multi-agent systems and distributed autonomous development. These flags enable agents to coordinate work, signal confidence levels, request feedback, and manage task queues effectively.
+
+### Communication Flags
+
+Communication flags provide a standardized way for autonomous agents to signal their status, confidence, and needs when working collaboratively. These flags are essential for dual-agent systems, distributed agent networks, and exchange-of-thought protocols.
+
+#### 4.1 Confidence Flags
+
+Express the agent's confidence level in its output. These flags help downstream agents and human reviewers understand the reliability of the work.
+
+| Flag | Meaning | When to Use | Example Usage |
+|------|---------|-------------|---------------|
+| **`CONFIDENT`** | High confidence, minimal review needed | Solution is well-tested and validated | After comprehensive testing |
+| **`UNCERTAIN`** | Unsure, needs validation | Solution needs peer review | Complex implementation |
+| **`HYPOTHESIS`** | Speculative guess, low confidence | Experimental or untested approach | Trying new patterns |
+| **`VALIDATED`** | Externally verified as correct | Another agent or human confirmed | Post peer-review |
+| **`EXPERIMENTAL`** | Highly experimental, may fail | Cutting-edge or risky approach | Research prototypes |
+
+**Implementation:**
+```cpp
+/*
+ * AI_PHASE: MEMORY_OPTIMIZATION
+ * AI_STATUS: IMPLEMENTED
+ * AI_COMPLEXITY: HIGH
+ * AI_NOTE: Cache-aware memory allocation with prefetching
+ * AI_CONFIDENCE: UNCERTAIN
+ * AI_NOTE_CONFIDENCE: Algorithm shows promise but needs performance validation
+ */
+```
+
+#### 4.2 Request Flags
+
+Signal the need for feedback, validation, or action from other agents or humans.
+
+| Flag | Meaning | When to Use | Example Usage |
+|------|---------|-------------|---------------|
+| **`REQUEST_FEEDBACK`** | Needs feedback from another agent | Wants peer validation | Design review needed |
+| **`REQUEST_REVIEW`** | Needs human review | Critical changes | Security-sensitive code |
+| **`WAITING_FOR_INPUT`** | Waiting for more information | Blocked on external data | Missing requirements |
+| **`NEEDS_VALIDATION`** | Requires validation before proceeding | Ready for testing | Pre-deployment check |
+| **`NEEDS_APPROVAL`** | Requires explicit approval | Critical decision point | Architecture changes |
+| **`REQUEST_ASSISTANCE`** | Unable to proceed alone | Task too complex | Escalation needed |
+
+**Implementation:**
+```cpp
+/*
+ * AI_PHASE: KERNEL_OPTIMIZATION
+ * AI_STATUS: PARTIAL
+ * AI_COMPLEXITY: CRITICAL
+ * AI_NOTE: Optimized kernel launch parameters
+ * AI_REQUEST: REQUEST_FEEDBACK
+ * AI_REQUEST_FROM: performance_analysis_agent
+ * AI_NOTE_REQUEST: Need performance profiling before finalizing parameters
+ */
+```
+
+#### 4.3 State Flags
+
+Indicate current processing state and task lifecycle position.
+
+| Flag | Meaning | When to Use | Example Usage |
+|------|---------|-------------|---------------|
+| **`PROCESSING`** | Actively working on task | Work in progress | During implementation |
+| **`READY`** | Task completed, ready for next step | Output ready for review | Awaiting validation |
+| **`DONE`** | Fully completed, no further action needed | Work complete | Final state |
+| **`BLOCKED`** | Cannot proceed without external input | Requires intervention | Dependency issue |
+| **`PAUSED`** | Temporarily suspended | Awaiting resource | Resource contention |
+| **`FAILED`** | Task failed and cannot proceed | Critical error | Unrecoverable error |
+| **`CANCELLED`** | Task cancelled by request | User/system cancel | Superseded work |
+
+**Implementation:**
+```cpp
+/*
+ * AI_PHASE: DATA_VALIDATION
+ * AI_STATUS: IMPLEMENTED
+ * AI_STATE: READY
+ * AI_NOTE: Validation complete, ready for integration testing
+ */
+```
+
+### Queuing Flags
+
+Queuing flags enable distributed agent systems to manage task priorities, coordinate work assignments, and track progress through processing pipelines.
+
+#### 4.4 Queue Priority Flags
+
+Control task prioritization in agent work queues.
+
+| Flag | Meaning | Priority Level | Use Case |
+|------|---------|----------------|----------|
+| **`CRITICAL`** | Highest priority, process immediately | 0 | Security vulnerabilities, system failures |
+| **`HIGH`** | High priority, process soon | 1 | Critical bugs, blocking issues |
+| **`NORMAL`** | Standard priority | 2 | Regular development tasks |
+| **`LOW`** | Low priority, process when able | 3 | Code cleanup, documentation |
+| **`DEFERRED`** | Lowest priority, future work | 4 | Nice-to-have features |
+
+**Implementation:**
+```cpp
+/*
+ * AI_PHASE: SECURITY_PATCH
+ * AI_STATUS: NOT_STARTED
+ * AI_COMPLEXITY: CRITICAL
+ * AI_QUEUE_PRIORITY: CRITICAL
+ * AI_QUEUE_REASON: Security vulnerability CVE-2025-XXXXX
+ * AI_ASSIGNED_TO: security_specialist_agent
+ */
+```
+
+#### 4.5 Queue Status Flags
+
+Track the progress of tasks through processing queues.
+
+| Flag | Meaning | Description |
+|------|---------|-------------|
+| **`QUEUED`** | Task is in queue, not started | Waiting for agent availability |
+| **`ASSIGNED`** | Task assigned to specific agent | Agent claimed the task |
+| **`IN_PROGRESS`** | Task is being processed | Active work |
+| **`REVIEW_PENDING`** | Work complete, awaiting review | In review queue |
+| **`REVIEW_IN_PROGRESS`** | Under active review | Being validated |
+| **`APPROVED`** | Review passed, ready to merge | Quality gate passed |
+| **`REJECTED`** | Review failed, needs rework | Quality gate failed |
+| **`COMPLETED`** | Fully done and integrated | Final state |
+| **`ABANDONED`** | Task abandoned/cancelled | Will not be completed |
+
+**Implementation:**
+```cpp
+/*
+ * AI_PHASE: API_MIGRATION
+ * AI_STATUS: PARTIAL
+ * AI_QUEUE_STATUS: IN_PROGRESS
+ * AI_QUEUE_PRIORITY: HIGH
+ * AI_ASSIGNED_TO: migration_agent_03
+ * AI_STARTED: 2025-10-20T14:30:00Z
+ * AI_ESTIMATED_COMPLETION: 2025-10-20T16:00:00Z
+ */
+```
+
+#### 4.6 Agent Assignment and Handoff
+
+Enable sophisticated task routing, agent assignment, and handoff workflows in distributed agent systems.
+
+##### Assignment Tags
+
+| Tag | Type | Description | Example |
+|-----|------|-------------|---------|
+| **`AI_ASSIGNED_TO`** | String | Current agent assigned to this task | `migration_agent_03` |
+| **`AI_ASSIGNED_BY`** | String | Agent or system that made the assignment | `orchestrator_agent` |
+| **`AI_ASSIGNED_AT`** | ISO 8601 DateTime | When the task was assigned | `2025-10-20T14:30:00Z` |
+| **`AI_ASSIGNMENT_REASON`** | String | Why this agent was chosen | `Specializes in API migration` |
+| **`AI_PREVIOUS_ASSIGNEE`** | String | Previous agent (for handoff tracking) | `general_agent_01` |
+| **`AI_ASSIGNMENT_HISTORY`** | Array of Strings | Complete assignment chain | `["agent_01", "agent_02"]` |
+
+##### Handoff Tags
+
+| Tag | Type | Description | Example |
+|-----|------|-------------|---------|
+| **`AI_HANDOFF_REQUESTED`** | Boolean | Whether handoff is requested | `true` |
+| **`AI_HANDOFF_REASON`** | String | Reason for handoff request | `Task complexity exceeds capability` |
+| **`AI_HANDOFF_TO`** | String | Specific agent requested for handoff | `expert_agent_05` |
+| **`AI_HANDOFF_TYPE`** | Enum | Type of handoff | `ESCALATION`, `SPECIALIZATION`, `LOAD_BALANCE`, `FAILURE` |
+| **`AI_HANDOFF_AT`** | ISO 8601 DateTime | When handoff occurred | `2025-10-20T15:45:00Z` |
+| **`AI_HANDOFF_NOTES`** | String | Context for next agent | `Completed initial analysis, needs optimization` |
+| **`AI_HANDOFF_STATUS`** | Enum | Handoff workflow state | `REQUESTED`, `ACCEPTED`, `REJECTED`, `COMPLETED` |
+
+##### Capability Matching Tags
+
+| Tag | Type | Description | Example |
+|-----|------|-------------|---------|
+| **`AI_REQUIRED_CAPABILITIES`** | Array of Strings | Required agent capabilities | `["python", "security", "cryptography"]` |
+| **`AI_PREFERRED_AGENT_TYPE`** | String | Preferred agent specialization | `security_specialist` |
+| **`AI_AGENT_POOL`** | Array of Strings | Eligible agents for assignment | `["agent_05", "agent_07", "agent_12"]` |
+| **`AI_SKILL_LEVEL_REQUIRED`** | Enum | Minimum skill level needed | `NOVICE`, `INTERMEDIATE`, `EXPERT`, `SPECIALIST` |
+
+**Handoff Type Values:**
+
+| Type | Meaning | When to Use |
+|------|---------|-------------|
+| **`ESCALATION`** | Task is too difficult | Current agent lacks expertise |
+| **`SPECIALIZATION`** | Needs specialized skills | Requires domain expertise |
+| **`LOAD_BALANCE`** | Distribute workload | Agent overloaded |
+| **`FAILURE`** | Previous attempt failed | Need fresh perspective |
+| **`COMPLETION`** | Phase complete, next phase needs different agent | Sequential workflow |
+| **`COLLABORATION`** | Multiple agents needed | Complex multi-faceted task |
+
+**Example: Initial Assignment**
+```cpp
+/*
+ * AI_PHASE: DATABASE_OPTIMIZATION
+ * AI_STATUS: NOT_STARTED
+ * AI_QUEUE_STATUS: ASSIGNED
+ * AI_QUEUE_PRIORITY: HIGH
+ * AI_ASSIGNED_TO: database_agent_03
+ * AI_ASSIGNED_BY: orchestrator_agent
+ * AI_ASSIGNED_AT: 2025-10-20T10:00:00Z
+ * AI_ASSIGNMENT_REASON: Agent specializes in query optimization
+ * AI_REQUIRED_CAPABILITIES: ["sql", "performance_analysis", "indexing"]
+ * AI_SKILL_LEVEL_REQUIRED: EXPERT
+ * AI_STATE: READY
+ */
+```
+
+**Example: Escalation Handoff**
+```cpp
+/*
+ * AI_PHASE: DATABASE_OPTIMIZATION
+ * AI_STATUS: PARTIAL
+ * AI_QUEUE_STATUS: IN_PROGRESS
+ * AI_ASSIGNED_TO: database_agent_03
+ * AI_PREVIOUS_ASSIGNEE: general_agent_01
+ * AI_ASSIGNMENT_HISTORY: ["general_agent_01"]
+ * AI_HANDOFF_REQUESTED: true
+ * AI_HANDOFF_REASON: Query performance issues require specialized expertise
+ * AI_HANDOFF_TYPE: ESCALATION
+ * AI_HANDOFF_TO: senior_database_specialist_01
+ * AI_HANDOFF_AT: 2025-10-20T14:30:00Z
+ * AI_HANDOFF_NOTES: Initial analysis complete, found N+1 query problem, needs index strategy
+ * AI_HANDOFF_STATUS: REQUESTED
+ * AI_STATE: BLOCKED
+ */
+```
+
+**Example: Completed Handoff**
+```cpp
+/*
+ * AI_PHASE: DATABASE_OPTIMIZATION
+ * AI_STATUS: IMPLEMENTED
+ * AI_QUEUE_STATUS: COMPLETED
+ * AI_ASSIGNED_TO: senior_database_specialist_01
+ * AI_PREVIOUS_ASSIGNEE: database_agent_03
+ * AI_ASSIGNMENT_HISTORY: ["general_agent_01", "database_agent_03"]
+ * AI_HANDOFF_STATUS: COMPLETED
+ * AI_HANDOFF_TYPE: ESCALATION
+ * AI_HANDOFF_AT: 2025-10-20T14:30:00Z
+ * AI_NOTE: Implemented composite index strategy, reduced query time by 85%
+ * AI_STATE: DONE
+ * AI_CONFIDENCE: CONFIDENT
+ */
+```
+
+**Example: Collaborative Handoff**
+```cpp
+/*
+ * AI_PHASE: SECURITY_AUDIT
+ * AI_STATUS: PARTIAL
+ * AI_QUEUE_STATUS: IN_PROGRESS
+ * AI_ASSIGNED_TO: security_analysis_agent
+ * AI_HANDOFF_REQUESTED: true
+ * AI_HANDOFF_REASON: Need cryptography expert for encryption review
+ * AI_HANDOFF_TYPE: COLLABORATION
+ * AI_HANDOFF_TO: cryptography_specialist_02
+ * AI_HANDOFF_NOTES: Authentication flow reviewed and approved, encryption implementation needs specialist review
+ * AI_REQUIRED_CAPABILITIES: ["cryptography", "tls", "certificate_management"]
+ * AI_NOTE: Parallel work - continuing with authorization audit while encryption reviewed
+ * AI_STATE: PROCESSING
+ */
+```
+
+**Example: Load Balance Handoff**
+```cpp
+/*
+ * AI_PHASE: UNIT_TEST_GENERATION
+ * AI_STATUS: NOT_STARTED
+ * AI_QUEUE_STATUS: QUEUED
+ * AI_QUEUE_PRIORITY: NORMAL
+ * AI_ASSIGNED_TO: test_generation_agent_02
+ * AI_ASSIGNED_BY: load_balancer_agent
+ * AI_ASSIGNMENT_REASON: Agent 01 at capacity, routing to available agent
+ * AI_HANDOFF_TYPE: LOAD_BALANCE
+ * AI_PREVIOUS_ASSIGNEE: test_generation_agent_01
+ * AI_HANDOFF_AT: 2025-10-20T11:15:00Z
+ * AI_STATE: READY
+ */
+```
+
+##### Assignment Workflow States
+
+The typical workflow for agent assignment and handoff:
+
+```
+┌─────────────┐
+│   QUEUED    │ - Task enters queue, no assignment yet
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  ASSIGNED   │ - AI_ASSIGNED_TO set, agent claimed task
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│IN_PROGRESS  │ - AI_STATE: PROCESSING, active work
+└──────┬──────┘
+       │
+       ├─────► Need Handoff? ─────┐
+       │                           │
+       │                           ▼
+       │                    ┌──────────────┐
+       │                    │   BLOCKED    │ - AI_HANDOFF_REQUESTED: true
+       │                    └──────┬───────┘
+       │                           │
+       │                           ▼
+       │                    ┌──────────────┐
+       │                    │  REASSIGNED  │ - New AI_ASSIGNED_TO
+       │                    └──────┬───────┘
+       │                           │
+       │                           ▼
+       │                    ┌──────────────┐
+       │                    │IN_PROGRESS   │ - New agent continues
+       │                    └──────┬───────┘
+       │                           │
+       ▼                           ▼
+┌─────────────┐           ┌──────────────┐
+│ COMPLETED   │◄──────────│  COMPLETED   │
+└─────────────┘           └──────────────┘
+```
+
+##### Best Practices for Assignment and Handoff
+
+1. **Track Assignment History**: Always maintain `AI_ASSIGNMENT_HISTORY` for full traceability
+2. **Document Handoff Reasons**: Use `AI_HANDOFF_REASON` to explain why handoff is needed
+3. **Provide Context**: Use `AI_HANDOFF_NOTES` to give the next agent complete context
+4. **Specify Capabilities**: Use `AI_REQUIRED_CAPABILITIES` to ensure proper agent selection
+5. **Update State**: Set `AI_STATE: BLOCKED` when waiting for handoff acceptance
+6. **Complete the Loop**: Update `AI_HANDOFF_STATUS: COMPLETED` when handoff is done
+7. **Timestamp Everything**: Use `AI_ASSIGNED_AT` and `AI_HANDOFF_AT` for audit trail
+8. **Enable Collaboration**: Use `AI_HANDOFF_TYPE: COLLABORATION` for parallel work
+
+### Dual-Agent Exchange Protocol
+
+For systems implementing dual-agent or multi-agent collaboration, these additional tags support structured exchange-of-thought protocols.
+
+#### 4.7 Dual-Agent Communication Tags
+
+| Tag | Purpose | Phase | Example Value |
+|-----|---------|-------|---------------|
+| **`AI_VALIDATION`** | Validation status from reviewer agent | Review | `ANALYZED`, `APPROVED`, `REJECTED` |
+| **`AI_ISSUES`** | Issues identified by reviewer | Review | Array of issue descriptions |
+| **`AI_SUGGESTIONS`** | Suggestions from reviewer | Review | Array of suggestions |
+| **`AI_REFINEMENT`** | Refinement status | Refinement | `APPLIED`, `IN_PROGRESS`, `PENDING` |
+| **`AI_CHANGES`** | Changes made during refinement | Refinement | Description of changes |
+| **`AI_RATIONALE`** | Reasoning for changes | Refinement | Explanation of decisions |
+| **`AI_VALIDATION_RESULT`** | Final validation result | Final Review | `APPROVED`, `NEEDS_MORE_WORK` |
+| **`AI_APPROVAL`** | Approval status | Final Review | `YES`, `NO`, `CONDITIONAL` |
+| **`AI_EXCHANGE_ID`** | Unique exchange session identifier | All Phases | UUID or session ID |
+| **`AI_ROUND`** | Exchange iteration number | All Phases | Integer (1, 2, 3...) |
+
+**Example: Generator Agent Output**
+```python
+# AI_PHASE: ERROR_HANDLING
+# AI_STATUS: GENERATED
+# AI_COMPLEXITY: MEDIUM
+# AI_NOTE: Generated error handling for file operations
+# AI_CONFIDENCE: UNCERTAIN
+# AI_REQUEST: NEEDS_VALIDATION
+# AI_STATE: READY
+# AI_EXCHANGE_ID: exchange_20251020_001
+# AI_ROUND: 1
+def handle_file_error(error):
+    print(f"Error: {error}")
+```
+
+**Example: Reviewer Agent Analysis**
+```python
+# AI_EXCHANGE_ID: exchange_20251020_001
+# AI_ROUND: 1
+# AI_VALIDATION: ANALYZED
+# AI_ISSUES: ["No error logging", "Missing exception handling", "No return value"]
+# AI_SUGGESTIONS: ["Add logging.error() call", "Wrap in try-except", "Return boolean status"]
+# AI_CONFIDENCE: CONFIDENT
+# AI_STATE: READY
+```
+
+**Example: Generator Agent Refinement**
+```python
+# AI_PHASE: ERROR_HANDLING
+# AI_STATUS: REFINED
+# AI_COMPLEXITY: MEDIUM
+# AI_NOTE: Refined error handling with logging and exception handling
+# AI_REFINEMENT: APPLIED
+# AI_CHANGES: Added logging, exception handling, return value
+# AI_RATIONALE: Addressed issues identified by reviewer
+# AI_CONFIDENCE: CONFIDENT
+# AI_REQUEST: NEEDS_VALIDATION
+# AI_STATE: READY
+# AI_EXCHANGE_ID: exchange_20251020_001
+# AI_ROUND: 2
+import logging
+
+def handle_file_error(error):
+    try:
+        logging.error(f"File operation failed: {error}")
+        return False
+    except Exception as e:
+        logging.critical(f"Error handling failed: {e}")
+        return False
+```
+
+**Example: Final Validation**
+```python
+# AI_EXCHANGE_ID: exchange_20251020_001
+# AI_ROUND: 2
+# AI_VALIDATION_RESULT: APPROVED
+# AI_APPROVAL: YES
+# AI_CONFIDENCE: CONFIDENT
+# AI_STATE: DONE
+# AI_NOTE: All issues resolved, implementation meets requirements
+```
+
+### Integration with Existing SCIS Tags
+
+The communication and queuing flags complement the existing SCIS tags. Here's how they work together:
+
+**Complete Example with All Tag Types:**
+```cpp
+/*
+ * SCIS Core Tags
+ * AI_PHASE: MEMORY_TRANSLATION
+ * AI_STATUS: IMPLEMENTED
+ * AI_COMPLEXITY: HIGH
+ * AI_NOTE: Translates CUDA memory operations to ROCm equivalents
+ * AI_DEPENDENCIES: MEMORY_ALLOCATION, ERROR_HANDLING
+ * AI_COMMIT: abc123def
+ * AI_COMMIT_HISTORY: def456abc, xyz789ghi
+ * 
+ * API Translation Tags
+ * SOURCE_API_REF: cudaMalloc (CUDA Runtime API 11.0)
+ * TARGET_API_REF: hipMalloc (ROCm HIP API 5.0)
+ * 
+ * Communication Flags
+ * AI_CONFIDENCE: CONFIDENT
+ * AI_STATE: DONE
+ * 
+ * Queuing Flags (if in distributed system)
+ * AI_QUEUE_STATUS: COMPLETED
+ * AI_QUEUE_PRIORITY: NORMAL
+ * AI_ASSIGNED_TO: memory_specialist_agent_02
+ * 
+ * Dual-Agent Tags (if using exchange protocol)
+ * AI_VALIDATION_RESULT: APPROVED
+ * AI_APPROVAL: YES
+ * AI_EXCHANGE_ID: exchange_20251019_045
+ * AI_ROUND: 2
+ */
+hipError_t translateCudaMalloc(void** devPtr, size_t size) {
+    return hipMalloc(devPtr, size);
+}
+```
+
+### Best Practices for Communication Flags
+
+1. **Be Honest About Confidence**: Use `UNCERTAIN` or `HYPOTHESIS` when appropriate
+2. **Request Help Early**: Don't wait until stuck to use `REQUEST_ASSISTANCE`
+3. **Update State Regularly**: Keep `AI_STATE` current for task tracking
+4. **Prioritize Correctly**: Use `QUEUE_PRIORITY` appropriately to avoid priority inflation
+5. **Document Exchanges**: Maintain `AI_EXCHANGE_ID` and `AI_ROUND` for traceability
+6. **Close the Loop**: Always update to `DONE` or `COMPLETED` when finished
+7. **Track Assignments**: Use `AI_ASSIGNED_TO` to prevent duplicate work
+
+### Use Cases
+
+#### Use Case 1: Distributed Build System
+```cpp
+/*
+ * AI_PHASE: COMPILATION
+ * AI_STATUS: PARTIAL
+ * AI_QUEUE_STATUS: ASSIGNED
+ * AI_QUEUE_PRIORITY: HIGH
+ * AI_ASSIGNED_TO: build_agent_07
+ * AI_STATE: PROCESSING
+ * AI_STARTED: 2025-10-20T10:15:00Z
+ * AI_TIMEOUT: 600
+ * AI_NOTE: Compiling core kernel modules
+ */
+```
+
+#### Use Case 2: Code Review Pipeline
+```cpp
+/*
+ * AI_PHASE: SECURITY_AUDIT
+ * AI_STATUS: IMPLEMENTED
+ * AI_CONFIDENCE: CONFIDENT
+ * AI_REQUEST: REQUEST_REVIEW
+ * AI_STATE: READY
+ * AI_QUEUE_STATUS: REVIEW_PENDING
+ * AI_NOTE: Security-critical authentication module
+ */
+```
+
+#### Use Case 3: Collaborative Problem Solving
+```cpp
+/*
+ * AI_PHASE: OPTIMIZATION
+ * AI_STATUS: PARTIAL
+ * AI_CONFIDENCE: HYPOTHESIS
+ * AI_REQUEST: REQUEST_FEEDBACK
+ * AI_REQUEST_FROM: performance_analysis_agent
+ * AI_STATE: BLOCKED
+ * AI_NOTE: Experimental caching strategy, needs performance validation
+ */
 ```
 
 ---
@@ -969,6 +1499,7 @@ api_error_t copyMemoryAsync(void* dst, const void* src, size_t count,
 | Version | Date | Changes |
 | :--- | :--- | :--- |
 | 1.0 | 2025-10-19 | Initial ACD Standard Specification release. Added comprehensive SCIS, TCS, and THS specifications. |
+| 1.1 | 2025-11-01 | Added Agent Collaboration and Communication Flags. Added Queuing Flags for distributed agent coordination. Added Dual-Agent Exchange Protocol support. Extended JSON schema with new flag definitions. |
 
 ---
 
