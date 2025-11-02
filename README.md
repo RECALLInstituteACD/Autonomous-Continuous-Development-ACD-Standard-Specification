@@ -115,6 +115,83 @@ maintain, and improve the codebase over time.
 
 ---
 
+## 🤖 Small Model Coordinator (SMC) - Agent Orchestration
+
+**NEW IN v1.1:** The ACD standard now includes a complete implementation of a **Small Model Coordinator (SMC)** for autonomous agent orchestration.
+
+The SMC is a lightweight coordinator that uses highly constrained JSON prompts for fast, CPU-bound decision making. It's designed to work with small models (Llama 3 8B or smaller) for minimum latency while providing sophisticated agent handoff and coordination.
+
+### Key Features
+
+- **3 Core JSON Prompts**: State Routing, Fix Triage, Final Decision
+- **Structured Agent Output**: All agents communicate via JSON (no prose)
+- **Handoff Protocol**: Uses AI_STATE, AI_HANDOFF_REQUESTED, AI_QUEUE_STATUS flags
+- **Low Latency**: Optimized for small, fast models (7-8B parameters)
+- **Fully Tested**: 27 comprehensive tests included
+
+### Quick Start with SMC
+
+```bash
+# Run SMC examples
+python3 examples/smc_example.py
+
+# Run specific demo
+python3 examples/smc_example.py "Complete Workflow"
+
+# Run tests
+python3 tests/test_smc.py
+```
+
+### Example: Complete Autonomous Workflow
+
+```python
+from smc_coordinator import SMCCoordinator
+from example_agents import BuilderAgent, TesterAgent, ReasoningAgent, FinalizerAgent
+
+# Initialize coordinator
+coordinator = SMCCoordinator()
+
+# Register agents
+coordinator.register_agent("BuilderAgent", BuilderAgent())
+coordinator.register_agent("TesterAgent", TesterAgent())
+coordinator.register_agent("ReasoningAgent", ReasoningAgent())
+coordinator.register_agent("FinalizerAgent", FinalizerAgent())
+
+# Run autonomous development cycle
+result = coordinator.run_coordination_loop(max_iterations=10)
+print(f"Completed in {result['total_iterations']} iterations")
+```
+
+### Structured Agent Output Example
+
+Instead of prose, agents now return structured JSON:
+
+```json
+{
+  "action": "REASON_AND_FIX",
+  "result": "SUCCESS",
+  "ai_state": "READY",
+  "ai_queue_status": "REVIEW_PENDING",
+  "ai_handoff_requested": true,
+  "fix_recommendation": {
+    "fix_type": "INSERT_LINE",
+    "target_file": "memory_api.py",
+    "line_number": 42,
+    "new_code": "import numpy as np"
+  }
+}
+```
+
+**Documentation**: See [SMC Implementation Guide](docs/SMC_IMPLEMENTATION_GUIDE.md) for complete details.
+
+**Implementation Files**:
+- `src/smc_coordinator.py` - SMC Coordinator
+- `src/example_agents.py` - Example agents (Reasoning, Testing, Building, Finalizing)
+- `examples/smc_example.py` - Comprehensive examples
+- `tests/test_smc.py` - 27 tests covering all functionality
+
+---
+
 ## Purpose
 
 **To transform stateless AI agents into context-aware collaborators** by providing complete historical tracking of every decision, change, and reasoning in a codebase.
